@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="sms_blacklist">短信黑名单</string>
+	<string name="preferences">设置</string>
+	<string name="blocked_messages">已过滤的短信</string>
+	<string name="type">规则类别</string>
+	<string name="edit_rule">编辑规则</string>
+	<string name="create_rule">创建规则</string>
+	<string name="help">帮助</string>
+	<string name="enable">启用</string>
+	<string name="save">保存</string>
+	<string name="delete">删除</string>
+	<string name="cancel">取消</string>
+	<string name="type_e">过滤所有来自这个号码的短信</string>
+	<string name="type_s">过滤号码以这段数字开头的短信</string>
+	<string name="type_c">过滤号码中包含这段数字的短信</string>
+	<string name="type_k">过滤含有这段词汇的短信</string>
+	<string name="type_w">不处理来自这个号码的短信</string>
+	<string name="invaild_value">输入的值无效，规则不能保存。</string>
+</resources>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="300dip"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center">
+
+	<LinearLayout 
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center">
+
+		<TextView
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:gravity="center_vertical"
+			android:text="@string/edit_rule"
+			android:textSize="22sp"
+			android:layout_weight="1"
+			android:layout_margin="8dip"
+			android:drawableLeft="@drawable/ic_dialog_edit"
+			android:drawablePadding="8dip"/>
+
+		<CheckBox
+			android:id="@+id/rule_enabled"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent"
+			android:layout_weight="0"
+			android:gravity="center_vertical"
+			android:paddingRight="8dip"/>
+			
+		</LinearLayout>
+
+	<ImageView
+		android:src="@android:drawable/divider_horizontal_dark"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:scaleType="fitXY"
+		android:layout_marginBottom="8dip"/>
+	
+	<LinearLayout 
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:layout_marginLeft="5dip"
+		android:layout_marginRight="5dip">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent"
+			android:gravity="center_vertical"
+			android:text="@string/type"
+			android:textSize="22sp"
+			android:layout_weight="0"
+			android:layout_margin="8dip"/>
+
+		<Spinner 
+			android:id="@+id/rule_type"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:entries="@array/rule_type"
+			android:prompt="@string/type"
+			android:gravity="right|center_vertical"/>
+
+	</LinearLayout>
+
+	<EditText
+		android:id="@+id/edit_rule"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:singleLine="true"
+		android:layout_margin="8dip"/>
+	
+	<RelativeLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="4dip"
+		android:paddingBottom="4dip"
+		android:paddingLeft="8dip"
+		android:paddingRight="8dip"
+		android:background="#d0d0d0d0" >
+
+		<TableRow
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+
+			<Button
+				android:id="@+id/save"
+				android:layout_weight="1"
+				android:layout_height="wrap_content" 
+				android:text="@string/save"/>
+	
+			<Button
+				android:id="@+id/delete"
+				android:layout_weight="1"
+				android:layout_height="wrap_content" 
+				android:text="@string/delete"/>
+	
+			<Button
+				android:id="@+id/cancel"
+				android:layout_weight="1"
+				android:layout_height="wrap_content" 
+				android:text="@string/cancel"/>
+
+		</TableRow>
+
+	</RelativeLayout>
+
+</LinearLayout>
