@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="sms_blacklist">SMS Blacklist</string>
+	<string name="preferences">Preferences</string>
+	<string name="blocked_messages">Blocked messages</string>
+	<string name="type">Type</string>
+	<string name="edit_rule">Edit rule</string>
+	<string name="create_rule">Create rule</string>
+	<string name="help">Help</string>
+	<string name="enable">Enable</string>
+	<string name="save">Save</string>
+	<string name="delete">Delete</string>
+	<string name="cancel">Cancel</string>
+	<string name="type_e">Block messages from this number</string>
+	<string name="type_s">Block messages start with this number</string>
+	<string name="type_c">Block messages contains this number</string>
+	<string name="type_k">Block messages contain this word</string>
+	<string name="type_w">Don\'t block messages from this number</string>
+	<string name="invaild_value">Invalid value. Rule can\'t be saved.</string>
+</resources>
