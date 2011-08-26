@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="sms_blacklist">SMS Blacklist</string>
-	<string name="preferences">Preferences</string>
 	<string name="blocked_messages">Blocked messages</string>
+	<string name="rules_list">Rules list</string>
 	<string name="type">Type</string>
+	<string name="rule_hint_number">&quot;N&quot; = pattern &quot;?&quot;</string>
+	<string name="rule_hint_keyword">Pattern &quot;?&quot; &amp; &quot;*&quot; allowed</string>
 	<string name="edit_rule">Edit rule</string>
 	<string name="create_rule">Create rule</string>
-	<string name="help">Help</string>
-	<string name="enable">Enable</string>
+	<string name="enable_rules">Enable rules</string>
+	<string name="disable_rules">Disable rules</string>
+	<string name="mark_all_read">Mark all as read</string>
+	<string name="clear_messages">Clear messages</string>
+	<string name="open">Open</string>
 	<string name="save">Save</string>
+	<string name="mark_read">Mark as read</string>
+	<string name="toggle">Toggle enable/disable</string>
 	<string name="delete">Delete</string>
 	<string name="cancel">Cancel</string>
-	<string name="type_e">Block messages from this number</string>
-	<string name="type_s">Block messages start with this number</string>
-	<string name="type_c">Block messages contains this number</string>
-	<string name="type_k">Block messages contain this word</string>
-	<string name="type_w">Don\'t block messages from this number</string>
+	<string name="ok">OK</string>
+	<string name="type_blacklist">Blacklist (Number &amp; wildcard pattern only)</string>
+	<string name="type_whitelist">Whitelist (Number &amp; wildcard pattern only)</string>
+	<string name="type_keyword">Keyword (Any words &amp; wildcard pattern)</string>
 	<string name="invaild_value">Invalid value. Rule can\'t be saved.</string>
+	<string name="delete_rule_confirm">Delete this rule?</string>
+	<string name="delete_message_confirm">Delete this message?</string>
+	<string name="clear_message_confirm">Delete ALL messages?</string>
+	<string name="enable_rules_confirm">Enable ALL rules?</string>
+	<string name="disable_rules_confirm">Disable ALL rules?</string>
 </resources>

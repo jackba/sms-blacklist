@@ -21,14 +21,6 @@
 			android:layout_margin="8dip"
 			android:drawableLeft="@drawable/ic_dialog_edit"
 			android:drawablePadding="8dip"/>
-
-		<CheckBox
-			android:id="@+id/rule_enabled"
-			android:layout_width="wrap_content"
-			android:layout_height="fill_parent"
-			android:layout_weight="0"
-			android:gravity="center_vertical"
-			android:paddingRight="8dip"/>
 			
 		</LinearLayout>
 
@@ -69,6 +61,7 @@
 
 	<EditText
 		android:id="@+id/edit_rule"
+		android:hint="@string/rule_hint_number"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:singleLine="true"
