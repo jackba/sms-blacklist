@@ -4,7 +4,7 @@
 	<string name="blocked_messages">Blocked messages</string>
 	<string name="rules_list">Rules list</string>
 	<string name="type">Type</string>
-	<string name="rule_hint_number">&quot;N&quot; = pattern &quot;?&quot;</string>
+	<string name="rule_hint_number">&quot;N&quot; or &quot;#&quot; = pattern &quot;?&quot;</string>
 	<string name="rule_hint_keyword">Pattern &quot;?&quot; &amp; &quot;*&quot; allowed</string>
 	<string name="edit_rule">Edit rule</string>
 	<string name="create_rule">Create rule</string>
@@ -20,7 +20,7 @@
 	<string name="cancel">Cancel</string>
 	<string name="ok">OK</string>
 	<string name="type_blacklist">Blacklist (Number &amp; wildcard pattern only)</string>
-	<string name="type_whitelist">Whitelist (Number &amp; wildcard pattern only)</string>
+	<string name="type_whitelist">Whitelist (Number &amp; wildcard pattern only, highest priority)</string>
 	<string name="type_keyword">Keyword (Any words &amp; wildcard pattern)</string>
 	<string name="invaild_value">Invalid value. Rule can\'t be saved.</string>
 	<string name="delete_rule_confirm">Delete this rule?</string>

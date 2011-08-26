@@ -148,7 +148,7 @@ public class EditRule extends Activity {
 			if (ruleType == Constants.TYPE_KEYWORD) {
 		    	ruleText = rEditRule.getText().toString();
 		    } else {
-		    	ruleText = rEditRule.getText().toString().replaceAll("[^0-9N*]", "").replaceAll("N", "?");
+		    	ruleText = rEditRule.getText().toString().replaceAll("[^0-9N#?*]", "").replaceAll("[N#]", "?");
 		    	rEditRule.setText(ruleText);
 		    }
 			if (ruleText.length() > 0) {
