@@ -3,6 +3,8 @@
 	<string name="sms_blacklist">信息黑名单</string>
 	<string name="blocked_messages">已过滤的信息</string>
 	<string name="rules_list">规则列表</string>
+	<string name="rules_empty">规则列表为空</string>
+	<string name="messages_empty">没有已过滤的信息</string>
 	<string name="type">规则类型</string>
 	<string name="rule_hint_number">“N”或“#”为通配符“?”</string>
 	<string name="rule_hint_keyword">可使用通配符“?”和“*”</string>

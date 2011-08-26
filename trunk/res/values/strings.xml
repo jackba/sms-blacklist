@@ -3,6 +3,8 @@
 	<string name="sms_blacklist">SMS Blacklist</string>
 	<string name="blocked_messages">Blocked messages</string>
 	<string name="rules_list">Rules list</string>
+	<string name="rules_empty">Rules list is empty</string>
+	<string name="messages_empty">No message found</string>
 	<string name="type">Type</string>
 	<string name="rule_hint_number">&quot;N&quot; or &quot;#&quot; = pattern &quot;?&quot;</string>
 	<string name="rule_hint_keyword">Pattern &quot;?&quot; &amp; &quot;*&quot; allowed</string>
