@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="rule_type">
-		<item>@string/type_e</item>
-		<item>@string/type_s</item>
-		<item>@string/type_c</item>
-		<item>@string/type_k</item>
-		<item>@string/type_w</item>
+		<item>@string/type_blacklist</item>
+		<item>@string/type_whitelist</item>
+		<item>@string/type_keyword</item>
 	</string-array>
 </resources>

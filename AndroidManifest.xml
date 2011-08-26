@@ -5,17 +5,16 @@
 	  android:versionName="1.0">
 	<uses-sdk android:minSdkVersion="4" />
 	<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
-
 	<application android:icon="@drawable/icon" android:label="@string/sms_blacklist">
-		<activity android:name="RulesList" android:label="@string/sms_blacklist">
-			<intent-filter>
+		<activity android:name="MessagesList" android:label="@string/blocked_messages">
+		<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:label="@string/blocked_messages" android:name="MessagesList"/>
-		<activity android:label="@string/preferences" android:name="Preferences"/>
+		<activity android:name="RulesList" android:label="@string/sms_blacklist"/>
 		<activity android:theme="@android:style/Theme.Dialog" android:name="EditRule"/>
+		<activity android:theme="@android:style/Theme.Dialog" android:name="OpenMessage"/>
 		<receiver android:name="SMSReceiver">
 				<intent-filter android:priority="1000">
 					<action android:name="android.provider.Telephony.SMS_RECEIVED"></action>

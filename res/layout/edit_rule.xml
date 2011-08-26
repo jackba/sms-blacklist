@@ -69,6 +69,7 @@
 
 	<EditText
 		android:id="@+id/edit_rule"
+		android:hint="@string/rule_hint_number"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:singleLine="true"
