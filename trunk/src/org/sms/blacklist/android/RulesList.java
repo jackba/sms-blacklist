@@ -94,6 +94,12 @@ public class RulesList extends ListActivity {
 		super.onStop();
 	}
 
+	@Override
+	public void onDestroy() {
+		rCursor.close();
+		super.onDestroy();
+	}
+	
 	@Override 
 	public boolean onContextItemSelected(MenuItem item) {
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();

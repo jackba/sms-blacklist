@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="sms_blacklist">信息黑名单</string>
+	<string name="blocked_messages">已过滤的信息</string>
+	<string name="rules_list">规则列表</string>
+	<string name="type">规则类型</string>
+	<string name="rule_hint_number">“N”或“#”为通配符“?”</string>
+	<string name="rule_hint_keyword">可使用通配符“?”和“*”</string>
+	<string name="edit_rule">编辑规则</string>
+	<string name="create_rule">创建规则</string>
+	<string name="enable_rules">启用所有规则</string>
+	<string name="disable_rules">禁用所有规则</string>
+	<string name="mark_all_read">全部标为已读</string>
+	<string name="clear_messages">清除所有信息</string>
+	<string name="open">打开</string>
+	<string name="save">保存</string>
+	<string name="mark_read">标为已读</string>
+	<string name="toggle">启用/禁用</string>
+	<string name="delete">删除</string>
+	<string name="cancel">取消</string>
+	<string name="ok">确认</string>
+	<string name="type_blacklist">黑名单（仅允许数字及通配符）</string>
+	<string name="type_whitelist">白名单（仅允许数字及通配符，最高优先级）</string>
+	<string name="type_keyword">关键词（可使用通配符匹配）</string>
+	<string name="invaild_value">所输入的值无效，规则不能被保存</string>
+	<string name="delete_rule_confirm">确定要删除这条规则？</string>
+	<string name="delete_message_confirm">确定要删除这条信息？</string>
+	<string name="clear_message_confirm">删除所有信息？</string>
+	<string name="enable_rules_confirm">启用所有规则？</string>
+	<string name="disable_rules_confirm">禁用所有规则？</string>
+</resources>
