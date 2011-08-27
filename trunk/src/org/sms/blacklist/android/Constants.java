@@ -16,6 +16,8 @@ public class Constants {
 	public final static int TYPE_TRUSTED_NUMBER = 1;
 	public final static int TYPE_BLOCKED_KEYWORD = 2;
 	public final static int TYPE_ONLY_TRUSTED_NUMBER = 3;
+	public final static int TYPE_BLOCKED_NUMBER_REGEXP = 4;
+	public final static int TYPE_BLOCKED_KEYWORD_REGEXP = 5;
 	
 	public final static int RESULT_EDIT = 0;
 	public final static int RESULT_OPEN = 1;
