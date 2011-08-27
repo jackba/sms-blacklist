@@ -145,14 +145,7 @@ public class EditRule extends Activity {
 					break;
 				case Constants.TYPE_BLOCKED_NUMBER_REGEXP:
 					rEditRule.setHint(R.string.rule_hint_regexp);
-					rEditRule.setKeyListener(new NumberKeyListener() {
-				        public int getInputType() {
-					        return InputType.TYPE_CLASS_TEXT;
-					        }
-					        protected char[] getAcceptedChars() {
-					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '$', '^', '[', ']', '(', ')', '{', '}', '|', '+', '-', '.', '\\', '?', '!', '*', 'd', 'D' };
-					        }
-					    });
+					rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
 					break;
 				case Constants.TYPE_BLOCKED_KEYWORD_REGEXP:
 					rEditRule.setHint(R.string.rule_hint_regexp);
@@ -186,7 +179,7 @@ public class EditRule extends Activity {
 					rEditRule.setText(rule);
 					break;
 				case Constants.TYPE_BLOCKED_NUMBER_REGEXP:
-					rule = rEditRule.getText().toString().replaceAll("[^0-9$^[](){}|+-.\\?!*dD]", "");
+					rule = rEditRule.getText().toString();
 					rEditRule.setText(rule);
 					break;
 				case Constants.TYPE_BLOCKED_KEYWORD_REGEXP:
