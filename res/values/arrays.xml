@@ -5,5 +5,7 @@
 		<item>@string/type_trusted_number</item>
 		<item>@string/type_blocked_keyword</item>
 		<item>@string/type_only_trusted_number</item>
+		<item>@string/type_blocked_number_regexp</item>
+		<item>@string/type_blocked_keyword_regexp</item>
 	</string-array>
 </resources>

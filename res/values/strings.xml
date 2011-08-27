@@ -5,9 +5,9 @@
 	<string name="rules_list">Rules list</string>
 	<string name="rules_empty">Rules list is empty</string>
 	<string name="messages_empty">No message found</string>
-	<string name="type_prompt">Rule Type (Wildcard allowed)</string>
-	<string name="rule_hint_number">\'N\' or \'#\' = pattern \'?\'</string>
-	<string name="rule_hint_keyword">Pattern \'?\' and \'*\' allowed</string>
+	<string name="type_prompt">Rule Type</string>
+	<string name="rule_hint_wildcard">Pattern \'?\' and \'*\' allowed</string>
+	<string name="rule_hint_regexp">Advanced users only</string>
 	<string name="edit_rule">Edit rule</string>
 	<string name="create_rule">Create rule</string>
 	<string name="enable_rules">Enable rules</string>
@@ -22,10 +22,12 @@
 	<string name="delete">Delete</string>
 	<string name="cancel">Cancel</string>
 	<string name="ok">OK</string>
-	<string name="type_blocked_number">Block messages matches this number</string>
-	<string name="type_trusted_number">Don\'t block messages match this number (Highest priority)</string>
-	<string name="type_blocked_keyword">Block message if content matches this keyword</string>
-	<string name="type_only_trusted_number">Block ALL messages NOT matches this number</string>
+	<string name="type_blocked_number">(Wildcard) Block messages matches this number</string>
+	<string name="type_trusted_number">(Wildcard) Don\'t block messages match this number (Highest priority)</string>
+	<string name="type_blocked_keyword">(Wildcard) Block message if content matches this keyword</string>
+	<string name="type_only_trusted_number">(Wildcard) Block ALL messages NOT matches this number</string>
+	<string name="type_blocked_number_regexp">(Regexp) Block messages matches this number</string>
+	<string name="type_blocked_keyword_regexp">(Regexp) Block messages if content matches this keyword</string>
 	<string name="invaild_value">Invalid value. Rule can\'t be saved.</string>
 	<string name="delete_rule_confirm">Delete this rule?</string>
 	<string name="delete_message_confirm">Delete this message?</string>

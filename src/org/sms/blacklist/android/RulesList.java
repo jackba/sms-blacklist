@@ -194,18 +194,23 @@ public class RulesList extends ListActivity {
 				
 				switch (ruleType) {
 					case Constants.TYPE_BLOCKED_NUMBER:
-						rType.setText(getString(R.string.type_blocked_number));
+						rType.setText(R.string.type_blocked_number);
 						break;
 					case Constants.TYPE_TRUSTED_NUMBER:
-						rType.setText(getString(R.string.type_trusted_number));
+						rType.setText(R.string.type_trusted_number);
 						break;
 					case Constants.TYPE_BLOCKED_KEYWORD:
-						rType.setText(getString(R.string.type_blocked_keyword));
+						rType.setText(R.string.type_blocked_keyword);
 						break;
 					case Constants.TYPE_ONLY_TRUSTED_NUMBER:
-						rType.setText(getString(R.string.type_only_trusted_number));
+						rType.setText(R.string.type_only_trusted_number);
 						break;
-				
+					case Constants.TYPE_BLOCKED_NUMBER_REGEXP:
+						rType.setText(R.string.type_blocked_number_regexp);
+						break;
+					case Constants.TYPE_BLOCKED_KEYWORD_REGEXP:
+						rType.setText(R.string.type_blocked_keyword_regexp);
+						break;
 				}
 				
 				if(ruleEnabled.equals("true")) {
@@ -305,11 +310,25 @@ public class RulesList extends ListActivity {
 		refreshCursor();
 	}
 	
-	private void deleteRule(int ruleId) {
-		rDatabaseAdapter = new RulesDatabaseAdapter(this);
-		rDatabaseAdapter.open();
-		rDatabaseAdapter.deleteRule(ruleId);
-		rDatabaseAdapter.close();
-		refreshCursor();
+	private void deleteRule(final int ruleId) {
+		new AlertDialog.Builder(this)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle(R.string.delete)
+		.setMessage(getString(R.string.delete_rule_confirm))
+		.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
+			public void onClick(DialogInterface di, int i) {
+				rDatabaseAdapter = new RulesDatabaseAdapter(RulesList.this);
+				rDatabaseAdapter.open();
+				rDatabaseAdapter.deleteRule(ruleId);
+				rDatabaseAdapter.close();
+				refreshCursor();
+			}
+		})
+		.setNegativeButton(R.string.cancel , new DialogInterface.OnClickListener(){
+			public void onClick(DialogInterface di, int i) {
+			}
+		})
+		.show();
+
 	}
 }

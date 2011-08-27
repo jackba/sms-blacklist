@@ -18,6 +18,8 @@ public class SMSReceiver extends BroadcastReceiver {
 	private String[] trustedNumbers;
 	private String[] blockedKeywords;
 	private String[] onlyTrustedNumbers;
+	private String[] blockedNumbersRegexp;
+	private String[] blockedKeywordsRegexp;
 	
 	private long timestamp;
 	private String number;
@@ -67,7 +69,19 @@ public class SMSReceiver extends BroadcastReceiver {
 					blockMessage(context);
 					return;
 				}
-			}			
+			}
+			for (String blockedNumberRegexp : blockedNumbersRegexp) {
+				if (Pattern.matches(blockedNumberRegexp, number)){
+					blockMessage(context);
+					return;
+				}
+			}
+			for (String blockedKeywordRegexp : blockedKeywordsRegexp) {
+				if (Pattern.matches(blockedKeywordRegexp, body)){
+					blockMessage(context);
+					return;
+				}
+			}
 		}
 	}
 	
@@ -128,6 +142,28 @@ public class SMSReceiver extends BroadcastReceiver {
 		  cursor.close();
 		 onlyTrustedNumbers = listOnlyTrustedNumber.toArray(new String[listOnlyTrustedNumber.size()]);
 
+	 cursor = rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_BLOCKED_NUMBER_REGEXP+"' and enabled='true'");
+		List<String> listBlockedNumbersRegexp = new ArrayList<String>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) { 
+			String rule=cursor.getString(1); 
+			listBlockedNumbersRegexp.add(rule);
+			cursor.moveToNext(); 
+		  } 
+		  cursor.close();
+		  blockedNumbersRegexp = listBlockedNumbersRegexp.toArray(new String[listBlockedNumbersRegexp.size()]);
+		 
+	 cursor = rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_BLOCKED_KEYWORD_REGEXP+"' and enabled='true'");
+		List<String> listBlockedKeywordsRegexp = new ArrayList<String>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) { 
+			String rule=cursor.getString(1); 
+			listBlockedKeywordsRegexp.add(rule);
+			cursor.moveToNext(); 
+		  } 
+		  cursor.close();
+		  blockedKeywordsRegexp = listBlockedKeywordsRegexp.toArray(new String[listBlockedKeywordsRegexp.size()]);
+		 
 		 rDatabaseAdapter.close();
 	}
 

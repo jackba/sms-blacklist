@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.NumberKeyListener;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -77,13 +78,6 @@ public class EditRule extends Activity {
 		
 		
 		rEditRule = (EditText) findViewById(R.id.edit_rule);
-		if (type == Constants.TYPE_BLOCKED_KEYWORD) {
-			rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
-			rEditRule.setHint(R.string.rule_hint_keyword);
-		} else {
-			rEditRule.setInputType(InputType.TYPE_CLASS_PHONE);
-			rEditRule.setHint(R.string.rule_hint_number);
-		}
 		if (editMode) {
 			rule = rCursor.getString(0);
 			rEditRule.setText(rule);
@@ -105,34 +99,65 @@ public class EditRule extends Activity {
 				finish();
 			}
 		});
-		
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-	}
-	
-	@Override
-	public void onStop() {
-		super.onStop();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
 	}
 	
 	private class typeSelectedListener implements OnItemSelectedListener {
 
 		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 			type = pos;
-			if (type == Constants.TYPE_BLOCKED_KEYWORD) {
-				rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
-				rEditRule.setHint(R.string.rule_hint_keyword);
-			} else {
-				rEditRule.setInputType(InputType.TYPE_CLASS_PHONE);
-				rEditRule.setHint(R.string.rule_hint_number);
+			switch (type) {
+				case Constants.TYPE_BLOCKED_NUMBER:
+					rEditRule.setHint(R.string.rule_hint_wildcard);
+					rEditRule.setKeyListener(new NumberKeyListener() {
+				        public int getInputType() {
+					        return InputType.TYPE_CLASS_NUMBER;
+					        }
+					        protected char[] getAcceptedChars() {
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*', '+', '-'};
+					        }
+					    });
+					break;
+				case Constants.TYPE_TRUSTED_NUMBER:
+					rEditRule.setHint(R.string.rule_hint_wildcard);
+					rEditRule.setKeyListener(new NumberKeyListener() {
+				        public int getInputType() {
+					        return InputType.TYPE_CLASS_NUMBER;
+					        }
+					        protected char[] getAcceptedChars() {
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*', '+', '-'};
+					        }
+					    });
+					break;
+				case Constants.TYPE_BLOCKED_KEYWORD:
+					rEditRule.setHint(R.string.rule_hint_wildcard);
+					rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
+					break;
+				case Constants.TYPE_ONLY_TRUSTED_NUMBER:
+					rEditRule.setHint(R.string.rule_hint_wildcard);
+					rEditRule.setKeyListener(new NumberKeyListener() {
+				        public int getInputType() {
+					        return InputType.TYPE_CLASS_NUMBER;
+					        }
+					        protected char[] getAcceptedChars() {
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*', '+', '-'};
+					        }
+					    });
+					break;
+				case Constants.TYPE_BLOCKED_NUMBER_REGEXP:
+					rEditRule.setHint(R.string.rule_hint_regexp);
+					rEditRule.setKeyListener(new NumberKeyListener() {
+				        public int getInputType() {
+					        return InputType.TYPE_CLASS_TEXT;
+					        }
+					        protected char[] getAcceptedChars() {
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '$', '^', '[', ']', '(', ')', '{', '}', '|', '+', '-', '.', '\\', '?', '!', '*', 'd', 'D' };
+					        }
+					    });
+					break;
+				case Constants.TYPE_BLOCKED_KEYWORD_REGEXP:
+					rEditRule.setHint(R.string.rule_hint_regexp);
+					rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
+					break;
 			}
 		}
 
@@ -141,15 +166,34 @@ public class EditRule extends Activity {
 		}
 	}
 	
-	
 	private View.OnClickListener mOnSaveClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
-			if (type == Constants.TYPE_BLOCKED_KEYWORD) {
-				rule = rEditRule.getText().toString();
-			} else {
-				rule = rEditRule.getText().toString().replaceAll("[^0-9N#?*]", "").replaceAll("[N#]", "?");
-				rEditRule.setText(rule);
+			
+			switch (type) {
+				case Constants.TYPE_BLOCKED_NUMBER:
+					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
+					rEditRule.setText(rule);
+					break;
+				case Constants.TYPE_TRUSTED_NUMBER:
+					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
+					rEditRule.setText(rule);
+					break;
+				case Constants.TYPE_BLOCKED_KEYWORD:
+					rule = rEditRule.getText().toString();
+					break;
+				case Constants.TYPE_ONLY_TRUSTED_NUMBER:
+					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
+					rEditRule.setText(rule);
+					break;
+				case Constants.TYPE_BLOCKED_NUMBER_REGEXP:
+					rule = rEditRule.getText().toString().replaceAll("[^0-9$^[](){}|+-.\\?!*dD]", "");
+					rEditRule.setText(rule);
+					break;
+				case Constants.TYPE_BLOCKED_KEYWORD_REGEXP:
+					rule = rEditRule.getText().toString();
+					break;
 			}
+			
 			if (rule.length() > 0) {
 				if (!editMode) {
 					enabled = "true";
@@ -192,7 +236,6 @@ public class EditRule extends Activity {
 				}
 			})
 			.show();
-
 		}
 	};
 	
