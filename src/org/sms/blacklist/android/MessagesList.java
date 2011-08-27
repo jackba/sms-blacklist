@@ -1,18 +1,15 @@
 package org.sms.blacklist.android;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +20,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -186,21 +184,21 @@ public class MessagesList extends ListActivity {
 				TextView mNumber = (TextView) view.findViewById(R.id.message_number);
 				TextView mBody = (TextView) view.findViewById(R.id.message_body);
 				TextView mDate = (TextView) view.findViewById(R.id.message_date);
+				ImageView mUnread = (ImageView) view.findViewById(R.id.unread_indicator);
 
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTimeInMillis(cursor.getLong(1));
-				DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
-				String messageDate = formatter.format(calendar.getTime());
-				
+				long timestamp = cursor.getLong(1);
+
+				String messageDate = formatTimeStampString(MessagesList.this, timestamp);
 				String messageNumber = cursor.getString(2);
 				String messageBody = cursor.getString(3);
 				String messageUnread = cursor.getString(4);
 
 				if(messageUnread.equals("true")) {
 					mNumber.setTypeface(null, Typeface.BOLD);
+					mUnread.setVisibility(View.VISIBLE);
 				} else {
 					mNumber.setTypeface(null, Typeface.NORMAL);
-					mNumber.setTextColor(Color.GRAY);
+					mUnread.setVisibility(View.GONE);
 					}
 				
 				mNumber.setText(messageNumber);
@@ -208,9 +206,8 @@ public class MessagesList extends ListActivity {
 				mDate.setText(messageDate);
 			}
 
-	   
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
-					View view = mInflater.inflate(R.layout.message_item_list, null);
+					View view = mInflater.inflate(R.layout.message_list_item, null);
 					bindView(view, context, cursor);
 					return view;
 			}
@@ -293,4 +290,25 @@ public class MessagesList extends ListActivity {
 		})
 		.show();
 	}
+	
+	public String formatTimeStampString(Context context, long timestamp) {
+        Time then = new Time();
+        then.set(timestamp);
+        Time now = new Time();
+        now.setToNow();
+
+        int format_flags = DateUtils.FORMAT_NO_NOON_MIDNIGHT |
+                           DateUtils.FORMAT_ABBREV_ALL |
+                           DateUtils.FORMAT_CAP_AMPM;
+
+        if (then.year != now.year) {
+            format_flags |= DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_DATE;
+        } else if (then.yearDay != now.yearDay) {
+            format_flags |= DateUtils.FORMAT_SHOW_DATE;
+        } else {
+            format_flags |= DateUtils.FORMAT_SHOW_TIME;
+        }
+
+        return DateUtils.formatDateTime(context, timestamp, format_flags);
+    }
 }
