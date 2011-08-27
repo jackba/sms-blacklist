@@ -6,122 +6,129 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
 public class SMSReceiver extends BroadcastReceiver {
 	
-	private String[] keysBlacklist;
-	private String[] keysWhitelist;
-	private String[] keysKeyword;
+	private String[] blockedNumbers;
+	private String[] trustedNumbers;
+	private String[] blockedKeywords;
+	private String[] onlyTrustedNumbers;
 	
-	private long smsTimestamp;
-	private String smsNumber;
-	private String smsBody;
+	private long timestamp;
+	private String number;
+	private String body;
+	
+	private MessagesDatabaseAdapter mDatabaseAdapter;
+	private RulesDatabaseAdapter rDatabaseAdapter;
 	
 	private static final String PATTERN_LINE_START = "^" ;
 	private static final String PATTERN_LINE_END = "$" ;
 	private static final char[] META_CHARACTERS = { '$', '^', '[', ']', '(', ')', '{', '}', '|', '+', '.', '\\' };
-	
-	private SQLiteDatabase rDatabase;
-	private SQLiteDatabase mDatabase;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-
-		RulesDatabaseHelper rhelper = new RulesDatabaseHelper(context);
-		rDatabase = rhelper.getReadableDatabase();
 		
-		MessagesDatabaseHelper mhelper = new MessagesDatabaseHelper(context);
-		mDatabase = mhelper.getWritableDatabase();
-		
-		readRules();
+		readRules(context);
 		
 		Bundle bundle = intent.getExtras();
 		Object messages[] = (Object[]) bundle.get("pdus");
 		SmsMessage smsMessage[] = new SmsMessage[messages.length];
 		for (int n = 0; n < messages.length; n++) {
 			smsMessage[n] = SmsMessage.createFromPdu((byte[]) messages[n]);
-			smsTimestamp = smsMessage[n].getTimestampMillis();
-			smsNumber = smsMessage[n].getOriginatingAddress();
-			smsBody = smsMessage[n].getMessageBody();
+			timestamp = smsMessage[n].getTimestampMillis();
+			number = smsMessage[n].getOriginatingAddress();
+			body = smsMessage[n].getMessageBody();
 
-			for (String keyWhitelist : keysWhitelist) {
-				if (wildcardMatch(keyWhitelist, smsNumber)){
+			for (String trustedNumber : trustedNumbers) {
+				if (wildcardMatch(trustedNumber, number)){
+					// nothing to do here
 					return;
 				} 
 			}
-
-			for (String keyBlacklist : keysBlacklist){
-				if (wildcardMatch(keyBlacklist, smsNumber)){
-					blockMessage();
+			for (String onlyTrustedNumber : onlyTrustedNumbers){
+				if (!wildcardMatch(onlyTrustedNumber, number)){
+					blockMessage(context);
+					return;
+				} 
+			}
+			for (String blockedNumber : blockedNumbers){
+				if (wildcardMatch(blockedNumber, number)){
+					blockMessage(context);
 					return;
 				}
 			}
-			for (String keyKeyword : keysKeyword) {
-				if (wildcardMatch(keyKeyword, smsBody)){
-					blockMessage();
+			for (String blockedKeyword : blockedKeywords) {
+				if (wildcardMatch(blockedKeyword, body)){
+					blockMessage(context);
 					return;
 				}
 			}			
 		}
-		rDatabase.close();
-		mDatabase.close();
 	}
 	
-	private void blockMessage(){
+	private void blockMessage(Context context){
 		this.abortBroadcast();
-			//Log blocked messages in database
-			ContentValues insertValues = new ContentValues();
-			insertValues.put("timestamp", smsTimestamp);
-			insertValues.put("number", smsNumber);
-			insertValues.put("body", smsBody);
-			insertValues.put("unread", "true");
-			mDatabase.insert("messages", "", insertValues);
+			mDatabaseAdapter = new MessagesDatabaseAdapter(context);
+			mDatabaseAdapter.open();
+			mDatabaseAdapter.insertMessage(timestamp, number, body);
+			mDatabaseAdapter.close();
 	}
 	
-	private void readRules(){	
-		String[] columns={"rule"}; 
+	private void readRules(Context context){	
 		
-		Cursor cursorBlacklist=rDatabase.query("rules", columns, "type='"+Constants.TYPE_BLACKLIST+"' and enabled='true'", null, null, null, null);
-		List<String> listBlacklist = new ArrayList<String>();
-		cursorBlacklist.moveToFirst();
-		while (!cursorBlacklist.isAfterLast()) { 
-			String rule=cursorBlacklist.getString(0); 
-			listBlacklist.add(rule);
-			cursorBlacklist.moveToNext();
-		  } 
-		  cursorBlacklist.close();
-		  keysBlacklist = listBlacklist.toArray(new String[listBlacklist.size()]);
+		rDatabaseAdapter = new RulesDatabaseAdapter(context);
+		rDatabaseAdapter.open();
 		
-		Cursor cursorWhitelist=rDatabase.query("rules", columns, "type='"+Constants.TYPE_WHITELIST+"' and enabled='true'", null, null, null, null);
-		List<String> listWhitelist = new ArrayList<String>();
-		cursorWhitelist.moveToFirst();
-		while (!cursorWhitelist.isAfterLast()) { 
-			String rule=cursorWhitelist.getString(0); 
-			listWhitelist.add(rule);
-			cursorWhitelist.moveToNext(); 
+		Cursor cursor = rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_BLOCKED_NUMBER+"' and enabled='true'");
+		List<String> listBlockedNumber = new ArrayList<String>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) { 
+			String rule=cursor.getString(1); 
+			listBlockedNumber.add(rule);
+			cursor.moveToNext();
 		  } 
-		  cursorWhitelist.close();
-		  keysWhitelist = listWhitelist.toArray(new String[listWhitelist.size()]);
+		  cursor.close();
+		  blockedNumbers = listBlockedNumber.toArray(new String[listBlockedNumber.size()]);
+		
+		cursor=rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_TRUSTED_NUMBER+"' and enabled='true'");
+		List<String> listTrustedNumber = new ArrayList<String>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) { 
+			String rule=cursor.getString(1); 
+			listTrustedNumber.add(rule);
+			cursor.moveToNext(); 
+		  } 
+		  cursor.close();
+		  trustedNumbers = listTrustedNumber.toArray(new String[listTrustedNumber.size()]);
 		  
-	  Cursor cursorKeyword=rDatabase.query("rules", columns, "type='"+Constants.TYPE_KEYWORD+"' and enabled='true'", null, null, null, null);
-		List<String> listKeyword = new ArrayList<String>();
-		cursorKeyword.moveToFirst();
-		while (!cursorKeyword.isAfterLast()) { 
-			String rule=cursorKeyword.getString(0); 
-			listKeyword.add(rule);
-			cursorKeyword.moveToNext(); 
+	  cursor = rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_BLOCKED_KEYWORD+"' and enabled='true'");
+		List<String> listBlockedKeyword = new ArrayList<String>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) { 
+			String rule=cursor.getString(1); 
+			listBlockedKeyword.add(rule);
+			cursor.moveToNext(); 
 		  } 
-		  cursorKeyword.close();
-		 keysKeyword = listKeyword.toArray(new String[listKeyword.size()]);
+		  cursor.close();
+		 blockedKeywords = listBlockedKeyword.toArray(new String[listBlockedKeyword.size()]);
+		 
+	 cursor = rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_ONLY_TRUSTED_NUMBER+"' and enabled='true'");
+		List<String> listOnlyTrustedNumber = new ArrayList<String>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) { 
+			String rule=cursor.getString(1); 
+			listOnlyTrustedNumber.add(rule);
+			cursor.moveToNext(); 
+		  } 
+		  cursor.close();
+		 onlyTrustedNumbers = listOnlyTrustedNumber.toArray(new String[listOnlyTrustedNumber.size()]);
 
+		 rDatabaseAdapter.close();
 	}
 
     public static boolean wildcardMatch(String pattern, String str) {
@@ -151,32 +158,4 @@ public class SMSReceiver extends BroadcastReceiver {
         result += PATTERN_LINE_END ;
         return result;
     }
-	
-	private class MessagesDatabaseHelper extends SQLiteOpenHelper {
-			public MessagesDatabaseHelper(Context context) {
-					super(context, "messages.sqlite", null, 1);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-					String scripts = "create table messages (_id integer primary key, timestamp long not null, number text not null, body text, unread text not null);";
-					db.execSQL(scripts);
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			}
-	}
-	
-	private class RulesDatabaseHelper extends SQLiteOpenHelper {
-		public RulesDatabaseHelper(Context context) {
-				super(context, "rules.sqlite", null, 1);
-		}
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-				String scripts = "create table rules (_id integer primary key, rule text not null, type integer not null, enabled text not null);";
-				db.execSQL(scripts);
-		}
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		}
-	}
 }

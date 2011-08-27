@@ -6,13 +6,10 @@ import java.util.Calendar;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -33,11 +30,11 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class MessagesList extends ListActivity {
 	
-	LayoutInflater mInflater;
-	ListView mListView;
-	Cursor mCursor;
-	SQLiteDatabase mDatabase;
-	MessagesAdapter mAdapter;
+	private LayoutInflater mInflater;
+	private ListView mListView;
+	private Cursor mCursor;
+	private MessagesAdapter mAdapter;
+	private MessagesDatabaseAdapter mDatabaseAdapter;
 	
 	private static final int rulesList = Menu.FIRST + 1;
 	private static final int markAllRead = Menu.FIRST + 2;
@@ -56,13 +53,10 @@ public class MessagesList extends ListActivity {
 
 		mListView = (ListView) findViewById(android.R.id.list);
 		mInflater = getLayoutInflater();
-        
-		MessagesDatabaseHelper mhelper = new MessagesDatabaseHelper(this);
-		mDatabase = mhelper.getWritableDatabase();
-
+		
 		refreshCursor();
-        
-      //Listview clicked
+		
+	  //Listview clicked
 		mListView.setOnItemClickListener(
 			new OnItemClickListener() {
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -87,16 +81,18 @@ public class MessagesList extends ListActivity {
 	}
 	
 	@Override
-    public void onResume() {
-	    refreshCursor();
-	    super.onResume();
-    }
+	public void onResume() {
+		refreshCursor();
+		super.onResume();
+	}
 	
+	@Override
 	public void onStop() {
 		mCursor.close();
 		super.onStop();
 	}
 	
+	@Override
 	public void onDestroy() {
 		mCursor.close();
 		super.onDestroy();
@@ -165,19 +161,17 @@ public class MessagesList extends ListActivity {
 			return super.onOptionsItemSelected(item);
 	}
 	
-	private class MessagesDatabaseHelper extends SQLiteOpenHelper {
-		public MessagesDatabaseHelper(Context context) {
-				super(context, "messages.sqlite", null, 1);
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (resultCode != RESULT_OK) {
+			return;
 		}
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-				String scripts = "create table messages (_id integer primary key, timestamp long not null, number text not null, body text, unread text not null);";
-				db.execSQL(scripts);
+		if (requestCode == Constants.RESULT_OPEN) {
+			if (resultCode == RESULT_OK) {
+				refreshCursor();
+			}
 		}
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		}
-}
+	}
 	
 	/** Cursor adapter */
 	public class MessagesAdapter extends CursorAdapter {
@@ -216,16 +210,19 @@ public class MessagesList extends ListActivity {
 
 	   
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
-					View view = mInflater.inflate(R.layout.messages_items, null);
+					View view = mInflater.inflate(R.layout.message_item_list, null);
 					bindView(view, context, cursor);
 					return view;
 			}
 	}
 	
 	private void refreshCursor() {
-        mCursor = mDatabase.query("messages", new String[] { "_id", "timestamp", "number", "body", "unread" }, null, null, null, null, "_id desc");
-        mAdapter = new MessagesAdapter(this, mCursor);
-        setListAdapter(mAdapter);
+		mDatabaseAdapter = new MessagesDatabaseAdapter(this);
+		mDatabaseAdapter.open();
+		mCursor = mDatabaseAdapter.getAllMessages();
+		mAdapter = new MessagesAdapter(this, mCursor);
+		setListAdapter(mAdapter);
+		mDatabaseAdapter.close();
 	}
 	
 	private void rulesList() {
@@ -246,7 +243,10 @@ public class MessagesList extends ListActivity {
 		.setMessage(getString(R.string.delete_message_confirm))
 		.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
 			public void onClick(DialogInterface di, int i) {
-				mDatabase.delete("messages", "_id="+String.valueOf(messageId), null);
+				mDatabaseAdapter = new MessagesDatabaseAdapter(MessagesList.this);
+				mDatabaseAdapter.open();
+				mDatabaseAdapter.deleteMessage(messageId);
+				mDatabaseAdapter.close();
 				refreshCursor();
 			}
 		})
@@ -258,21 +258,18 @@ public class MessagesList extends ListActivity {
 	}
 	
 	private void markRead(int messageId){
-		ContentValues cv = new ContentValues();
-		cv.put("unread", "false");
-		mDatabase.update("messages", cv, "_id="+String.valueOf(messageId), null);
+		mDatabaseAdapter = new MessagesDatabaseAdapter(this);
+		mDatabaseAdapter.open();
+		mDatabaseAdapter.markRead(messageId);
+		mDatabaseAdapter.close();
 		refreshCursor();
 	}
 	
 	private void markAllRead() {
-		mCursor.moveToFirst();
-		ContentValues cv = new ContentValues();
-		cv.put("unread", "false");
-		while (!mCursor.isAfterLast()) {
-			int messageId=mCursor.getInt(0);
-			mDatabase.update("messages", cv, "_id="+String.valueOf(messageId), null);
-			mCursor.moveToNext(); 
-		  }
+		mDatabaseAdapter = new MessagesDatabaseAdapter(this);
+		mDatabaseAdapter.open();
+		mDatabaseAdapter.markAllRead();
+		mDatabaseAdapter.close();
 		refreshCursor();
 	}
 	
@@ -283,12 +280,10 @@ public class MessagesList extends ListActivity {
 		.setMessage(getString(R.string.clear_message_confirm))
 		.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
 			public void onClick(DialogInterface di, int i) {
-				mCursor.moveToFirst();
-				while (!mCursor.isAfterLast()) {
-					int messageId=mCursor.getInt(0); 
-					mDatabase.delete("messages", "_id="+String.valueOf(messageId), null);
-					mCursor.moveToNext(); 
-				  }
+				mDatabaseAdapter = new MessagesDatabaseAdapter(MessagesList.this);
+				mDatabaseAdapter.open();
+				mDatabaseAdapter.deleteAllMessages();
+				mDatabaseAdapter.close();
 				refreshCursor();
 			}
 		})

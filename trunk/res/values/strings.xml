@@ -5,9 +5,9 @@
 	<string name="rules_list">Rules list</string>
 	<string name="rules_empty">Rules list is empty</string>
 	<string name="messages_empty">No message found</string>
-	<string name="type">Type</string>
-	<string name="rule_hint_number">&quot;N&quot; or &quot;#&quot; = pattern &quot;?&quot;</string>
-	<string name="rule_hint_keyword">Pattern &quot;?&quot; &amp; &quot;*&quot; allowed</string>
+	<string name="type_prompt">Rule Type (Wildcard allowed)</string>
+	<string name="rule_hint_number">\'N\' or \'#\' = pattern \'?\'</string>
+	<string name="rule_hint_keyword">Pattern \'?\' and \'*\' allowed</string>
 	<string name="edit_rule">Edit rule</string>
 	<string name="create_rule">Create rule</string>
 	<string name="enable_rules">Enable rules</string>
@@ -17,13 +17,15 @@
 	<string name="open">Open</string>
 	<string name="save">Save</string>
 	<string name="mark_read">Mark as read</string>
-	<string name="toggle">Toggle enable/disable</string>
+	<string name="enable">Enable</string>
+	<string name="disable">Disable</string>
 	<string name="delete">Delete</string>
 	<string name="cancel">Cancel</string>
 	<string name="ok">OK</string>
-	<string name="type_blacklist">Blacklist (Number &amp; wildcard pattern only)</string>
-	<string name="type_whitelist">Whitelist (Number &amp; wildcard pattern only, highest priority)</string>
-	<string name="type_keyword">Keyword (Any words &amp; wildcard pattern)</string>
+	<string name="type_blocked_number">Block messages matches this number</string>
+	<string name="type_trusted_number">Don\'t block messages match this number (Highest priority)</string>
+	<string name="type_blocked_keyword">Block message if content matches this keyword</string>
+	<string name="type_only_trusted_number">Block ALL messages NOT matches this number</string>
 	<string name="invaild_value">Invalid value. Rule can\'t be saved.</string>
 	<string name="delete_rule_confirm">Delete this rule?</string>
 	<string name="delete_message_confirm">Delete this message?</string>

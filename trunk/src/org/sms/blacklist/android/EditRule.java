@@ -2,13 +2,9 @@ package org.sms.blacklist.android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -27,144 +23,145 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class EditRule extends Activity {
 	
-	private Spinner rRuleType;
-	private CheckBox rRuleEnabled;
+	private Spinner rType;
+	private CheckBox rEnabled;
 	private EditText rEditRule;
 	private Button rSave;
 	private Button rDelete;
 	
+	private RulesDatabaseAdapter rDatabaseAdapter;
+	
 	private int ruleId;
 	private boolean editMode;
 	private Cursor rCursor;
-	private String ruleEnabled;
-	private int ruleType;
-	private String ruleText;
+	private String enabled;
+	private int type;
+	private String rule;
 	
-	private SQLiteDatabase rDatabase;
 	
 	public void onCreate(Bundle icicle) {
-	    super.onCreate(icicle);
-	    final Intent intent = getIntent();
+		super.onCreate(icicle);
+		final Intent intent = getIntent();
 		ruleId = intent.getIntExtra("ruleId", 0);
 		editMode = intent.getBooleanExtra("editMode", false);
-	    requestWindowFeature(Window.FEATURE_NO_TITLE);
-	    getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-	    
-	    RulesDatabaseHelper rhelper = new RulesDatabaseHelper(this);
-		rDatabase = rhelper.getWritableDatabase();
-	    
-	    if (editMode) {
-	    	setContentView(R.layout.edit_rule);
-	    	rCursor = rDatabase.query("rules", new String[] { "rule", "type", "enabled" }, "_id="+String.valueOf(ruleId), null, null, null, null);
-			rCursor.moveToFirst();
-	    	
-			ruleEnabled = rCursor.getString(2);
-		    rRuleEnabled = (CheckBox) findViewById(R.id.rule_enabled);
-		    if (ruleEnabled.equals("true")) {
-		    	rRuleEnabled.setChecked(true);
-		    }
-		    rRuleEnabled.setOnCheckedChangeListener(rEnabledChangeListener);
-	    } else {
-	    	setContentView(R.layout.create_rule);
-	    }
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+		
+		if (editMode) {
+			setContentView(R.layout.edit_rule);
+			rDatabaseAdapter = new RulesDatabaseAdapter(this);
+			rDatabaseAdapter.open();
+			rCursor = rDatabaseAdapter.getRule(ruleId);
+			rDatabaseAdapter.close();
+			
+			enabled = rCursor.getString(2);
+			rEnabled = (CheckBox) findViewById(R.id.rule_enabled);
+			if (enabled.equals("true")) {
+				rEnabled.setChecked(true);
+			}
+			rEnabled.setOnCheckedChangeListener(rEnabledChangeListener);
+		} else {
+			setContentView(R.layout.create_rule);
+		}
 
-	    rRuleType = (Spinner) findViewById(R.id.rule_type);
-	    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-	            this, R.array.rule_type, android.R.layout.simple_spinner_item);
-	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	    rRuleType.setAdapter(adapter);
-	    if (editMode) {
-		    ruleType = rCursor.getInt(1);
-		    rRuleType.setSelection(ruleType);
-	    }
-	    rRuleType.setOnItemSelectedListener(new RuleTypeSelectedListener());
-	    
-	    
-	    rEditRule = (EditText) findViewById(R.id.edit_rule);
-	    if (ruleType == Constants.TYPE_KEYWORD) {
-	    	rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
-	    	rEditRule.setHint(R.string.rule_hint_keyword);
-	    } else {
-	    	rEditRule.setInputType(InputType.TYPE_CLASS_PHONE);
-	    	rEditRule.setHint(R.string.rule_hint_number);
-	    }
-	    if (editMode) {
-	    	ruleText = rCursor.getString(0);
-		    rEditRule.setText(ruleText);
-	    }
-	    
-	    
-	    rSave = (Button) findViewById(R.id.save);
-	    rSave.setOnClickListener(mOnSaveClickListener);
-	    
-	    if (editMode) {
-	    	rDelete = (Button) findViewById(R.id.delete);
-	    	rDelete.setOnClickListener(rOnDeleteClickListener);
-	    }
+		rType = (Spinner) findViewById(R.id.rule_type);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				this, R.array.rule_type, android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		rType.setAdapter(adapter);
+		if (editMode) {
+			type = rCursor.getInt(1);
+			rType.setSelection(type);
+		}
+		rType.setOnItemSelectedListener(new typeSelectedListener());
+		
+		
+		rEditRule = (EditText) findViewById(R.id.edit_rule);
+		if (type == Constants.TYPE_BLOCKED_KEYWORD) {
+			rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
+			rEditRule.setHint(R.string.rule_hint_keyword);
+		} else {
+			rEditRule.setInputType(InputType.TYPE_CLASS_PHONE);
+			rEditRule.setHint(R.string.rule_hint_number);
+		}
+		if (editMode) {
+			rule = rCursor.getString(0);
+			rEditRule.setText(rule);
+		}
+		
+		rSave = (Button) findViewById(R.id.save);
+		rSave.setOnClickListener(mOnSaveClickListener);
+		
+		if (editMode) {
+			
+			rCursor.close();
+			
+			rDelete = (Button) findViewById(R.id.delete);
+			rDelete.setOnClickListener(rOnDeleteClickListener);
+		}
 
-	    ((Button)findViewById(R.id.cancel)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                finish();
-            }
-        });
-	    
+		((Button)findViewById(R.id.cancel)).setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				finish();
+			}
+		});
+		
 	}
 	
-	private class RulesDatabaseHelper extends SQLiteOpenHelper {
-		public RulesDatabaseHelper(Context context) {
-				super(context, "rules.sqlite", null, 1);
-		}
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-				String scripts = "create table rules (_id integer primary key, rule text not null, type integer not null, enabled text not null);";
-				db.execSQL(scripts);
-		}
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		}
+	@Override
+	public void onResume() {
+		super.onResume();
 	}
 	
-	private class RuleTypeSelectedListener implements OnItemSelectedListener {
+	@Override
+	public void onStop() {
+		super.onStop();
+	}
 
-	    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-	    	ruleType = pos;
-	    	if (ruleType == Constants.TYPE_KEYWORD) {
-		    	rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
-		    	rEditRule.setHint(R.string.rule_hint_keyword);
-		    } else {
-		    	rEditRule.setInputType(InputType.TYPE_CLASS_PHONE);
-		    	rEditRule.setHint(R.string.rule_hint_number);
-		    }
-	    }
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+	}
+	
+	private class typeSelectedListener implements OnItemSelectedListener {
 
-	    public void onNothingSelected(AdapterView<?> parent) {
-	      // Do nothing.
-	    }
+		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+			type = pos;
+			if (type == Constants.TYPE_BLOCKED_KEYWORD) {
+				rEditRule.setInputType(InputType.TYPE_CLASS_TEXT);
+				rEditRule.setHint(R.string.rule_hint_keyword);
+			} else {
+				rEditRule.setInputType(InputType.TYPE_CLASS_PHONE);
+				rEditRule.setHint(R.string.rule_hint_number);
+			}
+		}
+
+		public void onNothingSelected(AdapterView<?> parent) {
+		  // Do nothing.
+		}
 	}
 	
 	
 	private View.OnClickListener mOnSaveClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
-			if (ruleType == Constants.TYPE_KEYWORD) {
-		    	ruleText = rEditRule.getText().toString();
-		    } else {
-		    	ruleText = rEditRule.getText().toString().replaceAll("[^0-9N#?*]", "").replaceAll("[N#]", "?");
-		    	rEditRule.setText(ruleText);
-		    }
-			if (ruleText.length() > 0) {
+			if (type == Constants.TYPE_BLOCKED_KEYWORD) {
+				rule = rEditRule.getText().toString();
+			} else {
+				rule = rEditRule.getText().toString().replaceAll("[^0-9N#?*]", "").replaceAll("[N#]", "?");
+				rEditRule.setText(rule);
+			}
+			if (rule.length() > 0) {
 				if (!editMode) {
-					ruleEnabled = "true";
+					enabled = "true";
 				}
-				ContentValues cv = new ContentValues();
-				cv.put("rule", ruleText);
-				cv.put("type", ruleType);
-				cv.put("enabled", ruleEnabled);
+				rDatabaseAdapter = new RulesDatabaseAdapter(EditRule.this);
+				rDatabaseAdapter.open();
 				if (editMode){
-					rDatabase.update("rules", cv, "_id="+String.valueOf(ruleId), null);
+					rDatabaseAdapter.updateRule(ruleId, rule, type, enabled);
 				} else {
-					rDatabase.insert("rules", "", cv);
+					rDatabaseAdapter.insertRule(rule, type, enabled);
 				}
-				rDatabase.close();
+				rDatabaseAdapter.close();
 				setResult(RESULT_OK);
 				finish();
 			} else {
@@ -182,8 +179,10 @@ public class EditRule extends Activity {
 			.setMessage(getString(R.string.delete_rule_confirm))
 			.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
 				public void onClick(DialogInterface di, int i) {
-					rDatabase.delete("rules", "_id="+String.valueOf(ruleId), null);
-					rDatabase.close();
+					rDatabaseAdapter = new RulesDatabaseAdapter(EditRule.this);
+					rDatabaseAdapter.open();
+					rDatabaseAdapter.deleteRule(ruleId);
+					rDatabaseAdapter.close();
 					setResult(RESULT_OK);
 					finish();
 				}
@@ -200,7 +199,7 @@ public class EditRule extends Activity {
 	private OnCheckedChangeListener rEnabledChangeListener = new OnCheckedChangeListener(){
 		@Override
 		public void onCheckedChanged(CompoundButton button, boolean checked) {
-			ruleEnabled = String.valueOf(checked);
+			enabled = String.valueOf(checked);
 		}
 	};
 }
