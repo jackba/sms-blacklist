@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	  package="org.sms.blacklist.android"
-	  android:versionCode="1"
-	  android:versionName="1.0">
+	  android:versionCode="2"
+	  android:versionName="1.1">
 	<uses-sdk android:minSdkVersion="4" />
 	<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
 	<application android:icon="@drawable/icon" android:label="@string/sms_blacklist">
@@ -12,7 +12,7 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name="RulesList" android:label="@string/sms_blacklist"/>
+		<activity android:name="RulesList" android:label="@string/rules_list"/>
 		<activity android:theme="@android:style/Theme.Dialog" android:name="EditRule"/>
 		<activity android:theme="@android:style/Theme.Dialog" android:name="OpenMessage"/>
 		<receiver android:name="SMSReceiver">

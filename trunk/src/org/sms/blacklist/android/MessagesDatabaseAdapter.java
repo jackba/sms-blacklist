@@ -80,7 +80,7 @@ public class MessagesDatabaseAdapter {
 	
 	/* retrieves all the messages */
 	public Cursor getAllMessages() {
-		return db.query(Constants.DATABASES_TABLE_MESSAGES, new String[] {KEY_MESSAGEID, KEY_TIMESTAMP, KEY_NUMBER, KEY_BODY, KEY_UNREAD}, null, null, null, null, "_id DESC");
+		return db.query(Constants.DATABASES_TABLE_MESSAGES, new String[] {KEY_MESSAGEID, KEY_TIMESTAMP, KEY_NUMBER, KEY_BODY, KEY_UNREAD}, null, null, null, null, "timestamp DESC");
 	}
 
 	/* retrieves a message */

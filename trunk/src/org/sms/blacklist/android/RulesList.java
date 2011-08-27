@@ -219,7 +219,7 @@ public class RulesList extends ListActivity {
 
 	   
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
-					View view = rInflater.inflate(R.layout.rule_item_list, null);
+					View view = rInflater.inflate(R.layout.rule_list_item, null);
 					bindView(view, context, cursor);
 					return view;
 			}

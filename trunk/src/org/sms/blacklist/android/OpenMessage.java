@@ -1,15 +1,14 @@
 package org.sms.blacklist.android;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -42,10 +41,9 @@ public class OpenMessage extends Activity {
 		mCursor = mDatabaseAdapter.getMessage(messageId);
 		mDatabaseAdapter.close();
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(mCursor.getLong(0));
-		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
-		String messageDate = formatter.format(calendar.getTime());
+		long timestamp = mCursor.getLong(0);
+		
+		String messageDate = formatTimeStampString(this, timestamp);
 		String messageNumber = mCursor.getString(1);
 		String messageBody = mCursor.getString(2);
 
@@ -112,4 +110,19 @@ public class OpenMessage extends Activity {
 			.show();
 		}
 	};
+	
+	public String formatTimeStampString(Context context, long timestamp) {
+        Time then = new Time();
+        then.set(timestamp);
+        Time now = new Time();
+        now.setToNow();
+
+        int format_flags = DateUtils.FORMAT_NO_NOON_MIDNIGHT |
+                           DateUtils.FORMAT_ABBREV_ALL |
+                           DateUtils.FORMAT_CAP_AMPM;
+
+		format_flags |= (DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+
+        return DateUtils.formatDateTime(context, timestamp, format_flags);
+    }
 }
