@@ -6,13 +6,9 @@ import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -28,8 +24,8 @@ public class OpenMessage extends Activity {
 	private TextView mNumber;
 	private TextView mBody;
 	private TextView mDate;
-	
-	private SQLiteDatabase mDatabase;
+
+	private MessagesDatabaseAdapter mDatabaseAdapter;
 	private Cursor mCursor;
 	
 	public void onCreate(Bundle icicle) {
@@ -41,10 +37,10 @@ public class OpenMessage extends Activity {
 		getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
 		setContentView(R.layout.open_message);
 
-		MessagesDatabaseHelper mhelper = new MessagesDatabaseHelper(this);
-		mDatabase = mhelper.getWritableDatabase();
-		mCursor = mDatabase.query("messages", new String[] {"timestamp", "number", "body"}, "_id="+String.valueOf(messageId), null, null, null, null);
-		mCursor.moveToFirst();
+		mDatabaseAdapter = new MessagesDatabaseAdapter(this);
+		mDatabaseAdapter.open();
+		mCursor = mDatabaseAdapter.getMessage(messageId);
+		mDatabaseAdapter.close();
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(mCursor.getLong(0));
@@ -53,6 +49,8 @@ public class OpenMessage extends Activity {
 		String messageNumber = mCursor.getString(1);
 		String messageBody = mCursor.getString(2);
 
+		mCursor.close();
+		
 		mNumber = (TextView) findViewById(R.id.number);
 		mBody = (TextView) findViewById(R.id.message);
 		mDate = (TextView) findViewById(R.id.date);
@@ -66,29 +64,30 @@ public class OpenMessage extends Activity {
 
 		((Button)findViewById(R.id.ok)).setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				ContentValues cv = new ContentValues();
-				cv.put("unread", "false");
-				mDatabase.update("messages", cv, "_id="+String.valueOf(messageId), null);
-				mDatabase.close();
+				mDatabaseAdapter = new MessagesDatabaseAdapter(OpenMessage.this);
+				mDatabaseAdapter.open();
+				mDatabaseAdapter.markRead(messageId);
+				mDatabaseAdapter.close();
 				setResult(RESULT_OK);
 				finish();
 			}
 		});
 	}
 	
-	private class MessagesDatabaseHelper extends SQLiteOpenHelper {
-		public MessagesDatabaseHelper(Context context) {
-				super(context, "messages.sqlite", null, 1);
-		}
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-				String scripts = "create table messages (_id integer primary key, timestamp long not null, number text not null, body text, unread text not null);";
-				db.execSQL(scripts);
-		}
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		}
-}
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+	}
 		
 	private View.OnClickListener mOnDeleteClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
@@ -98,8 +97,10 @@ public class OpenMessage extends Activity {
 			.setMessage(getString(R.string.delete_message_confirm))
 			.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener(){
 				public void onClick(DialogInterface di, int i) {
-					mDatabase.delete("messages", "_id="+String.valueOf(messageId), null);
-					mDatabase.close();
+					mDatabaseAdapter = new MessagesDatabaseAdapter(OpenMessage.this);
+					mDatabaseAdapter.open();
+					mDatabaseAdapter.deleteMessage(messageId);
+					mDatabaseAdapter.close();
 					setResult(RESULT_OK);
 					finish();
 				}

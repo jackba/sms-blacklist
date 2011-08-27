@@ -5,24 +5,16 @@
 	android:layout_height="wrap_content"
 	android:layout_gravity="center">
 
-	<LinearLayout 
-		android:orientation="horizontal"
+	<TextView
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center">
-
-		<TextView
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:gravity="center_vertical"
-			android:text="@string/create_rule"
-			android:textSize="22sp"
-			android:layout_weight="1"
-			android:layout_margin="8dip"
-			android:drawableLeft="@drawable/ic_dialog_edit"
-			android:drawablePadding="8dip"/>
-			
-		</LinearLayout>
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
+		android:text="@string/create_rule"
+		android:textSize="22sp"
+		android:layout_weight="1"
+		android:layout_margin="8dip"
+		android:drawableLeft="@drawable/ic_dialog_edit"
+		android:drawablePadding="8dip"/>	
 
 	<ImageView
 		android:src="@android:drawable/divider_horizontal_dark"
@@ -30,34 +22,14 @@
 		android:layout_height="fill_parent"
 		android:scaleType="fitXY"
 		android:layout_marginBottom="8dip"/>
-	
-	<LinearLayout 
-		android:orientation="horizontal"
+
+	<Spinner 
+		android:id="@+id/rule_type"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:layout_marginLeft="5dip"
-		android:layout_marginRight="5dip">
-
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="fill_parent"
-			android:gravity="center_vertical"
-			android:text="@string/type"
-			android:textSize="22sp"
-			android:layout_weight="0"
-			android:layout_margin="8dip"/>
-
-		<Spinner 
-			android:id="@+id/rule_type"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:entries="@array/rule_type"
-			android:prompt="@string/type"
-			android:gravity="right|center_vertical"/>
-
-	</LinearLayout>
+		android:entries="@array/rule_type"
+		android:prompt="@string/type_prompt"
+		android:layout_margin="8dip"/>
 
 	<EditText
 		android:id="@+id/edit_rule"

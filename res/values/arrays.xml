@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="rule_type">
-		<item>@string/type_blacklist</item>
-		<item>@string/type_whitelist</item>
-		<item>@string/type_keyword</item>
+		<item>@string/type_blocked_number</item>
+		<item>@string/type_trusted_number</item>
+		<item>@string/type_blocked_keyword</item>
+		<item>@string/type_only_trusted_number</item>
 	</string-array>
 </resources>
