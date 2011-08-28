@@ -1,5 +1,7 @@
 package org.sms.blacklist.android;
 
+import java.util.regex.Pattern;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -105,6 +107,18 @@ public class RulesDatabaseAdapter {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "true");
 		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "=" + ruleId, null);
+		Cursor cursor = getRule(ruleId);
+		String rule = cursor.getString(0);
+		int type = cursor.getInt(1);
+		if (type == Constants.TYPE_BLOCKED_NUMBER_REGEXP||type == Constants.TYPE_BLOCKED_KEYWORD_REGEXP) {
+			String rnumber = String.valueOf((int)(Math.random() * 10));
+			try {
+				Pattern.matches(rule, rnumber);
+			} catch (RuntimeException e) {
+				updateRule(ruleId, rule, type, "error");
+			}
+		}
+		cursor.close();
 	}
 	
 	/* disable a rule */
@@ -119,6 +133,21 @@ public class RulesDatabaseAdapter {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "true");
 		db.update(Constants.DATABASES_TABLE_RULES, args, null, null);
+		Cursor cursor = getAllRules(KEY_TYPE + "= '" + String.valueOf(Constants.TYPE_BLOCKED_NUMBER_REGEXP) + "' OR "+ KEY_TYPE +"= '" + String.valueOf(Constants.TYPE_BLOCKED_KEYWORD_REGEXP) +"'");
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			int ruleId = cursor.getInt(0);
+			String rule = cursor.getString(1);
+			int type = cursor.getInt(2);
+			String rnumber = String.valueOf((int)(Math.random() * 10));
+			try {
+				Pattern.matches(rule, rnumber);
+			} catch (RuntimeException e) {
+				updateRule(ruleId, rule, type, "error");
+			}
+			cursor.moveToNext(); 
+		  }
+		  cursor.close();
 	}
 	
 	/* disable all rules */

@@ -215,9 +215,12 @@ public class RulesList extends ListActivity {
 				
 				if(ruleEnabled.equals("true")) {
 					rRule.setTypeface(null, Typeface.BOLD);
-				} else {
+				} else if (ruleEnabled.equals("false")){
 					rRule.setTypeface(null, Typeface.NORMAL);
 					rRule.setTextColor(Color.GRAY);
+					} else {
+						rRule.setTypeface(null, Typeface.BOLD);
+						rRule.setTextColor(Color.RED);
 					}
 				rRule.setText(ruleName);
 			}
