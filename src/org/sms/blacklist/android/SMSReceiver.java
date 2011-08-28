@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 public class SMSReceiver extends BroadcastReceiver {
 	
@@ -71,17 +72,25 @@ public class SMSReceiver extends BroadcastReceiver {
 				}
 			}
 			for (String blockedNumberRegexp : blockedNumbersRegexp) {
-				if (Pattern.matches(blockedNumberRegexp, number)){
-					blockMessage(context);
-					return;
+				try {
+					if (Pattern.matches(blockedNumberRegexp, number)){
+						blockMessage(context);
+						return;
+					}
+				} catch (RuntimeException e) {
+					disableIncorrectedRule(blockedNumberRegexp, Constants.TYPE_BLOCKED_NUMBER_REGEXP, context);
+					}
 				}
-			}
 			for (String blockedKeywordRegexp : blockedKeywordsRegexp) {
-				if (Pattern.matches(blockedKeywordRegexp, body)){
-					blockMessage(context);
-					return;
+				try {
+					if (Pattern.matches(blockedKeywordRegexp, number)){
+						blockMessage(context);
+						return;
+					}
+				} catch (RuntimeException e) {
+					disableIncorrectedRule(blockedKeywordRegexp, Constants.TYPE_BLOCKED_KEYWORD_REGEXP, context);
+					}
 				}
-			}
 		}
 	}
 	
@@ -156,17 +165,32 @@ public class SMSReceiver extends BroadcastReceiver {
 	 cursor = rDatabaseAdapter.getAllRules("type='"+Constants.TYPE_BLOCKED_KEYWORD_REGEXP+"' and enabled='true'");
 		List<String> listBlockedKeywordsRegexp = new ArrayList<String>();
 		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) { 
+		while (!cursor.isAfterLast()) {
 			String rule=cursor.getString(1); 
 			listBlockedKeywordsRegexp.add(rule);
 			cursor.moveToNext(); 
-		  } 
+		  }
 		  cursor.close();
 		  blockedKeywordsRegexp = listBlockedKeywordsRegexp.toArray(new String[listBlockedKeywordsRegexp.size()]);
 		 
 		 rDatabaseAdapter.close();
 	}
 
+	public void disableIncorrectedRule(String rule, int type, Context context){
+		rDatabaseAdapter = new RulesDatabaseAdapter(context);
+		rDatabaseAdapter.open();
+		Cursor cursor = rDatabaseAdapter.getAllRules("rule='"+rule+"' and enabled='true'");
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			int ruleId = cursor.getInt(0);
+			rDatabaseAdapter.updateRule(ruleId, rule, type, "error");
+			cursor.moveToNext(); 
+		  }
+		  cursor.close();
+		rDatabaseAdapter.close();
+		Log.e(Constants.LOGTAG, "Rule '"+rule+"' have SYNTAX ERROR! It will be DISABLED until corrected !");
+	}
+	
     public static boolean wildcardMatch(String pattern, String str) {
         pattern = convertToRegexPattern(pattern);
         return Pattern.matches(pattern, str);

@@ -28,6 +28,7 @@
 	<string name="type_only_trusted_number">(Wildcard) Block ALL messages NOT matches this number</string>
 	<string name="type_blocked_number_regexp">(Regexp) Block messages matches this number</string>
 	<string name="type_blocked_keyword_regexp">(Regexp) Block messages if content matches this keyword</string>
+	<string name="syntax_error">Syntax error. Rule can\'t be saved.</string>
 	<string name="invaild_value">Invalid value. Rule can\'t be saved.</string>
 	<string name="delete_rule_confirm">Delete this rule?</string>
 	<string name="delete_message_confirm">Delete this message?</string>

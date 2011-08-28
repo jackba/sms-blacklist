@@ -1,5 +1,7 @@
 package org.sms.blacklist.android;
 
+import java.util.regex.Pattern;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -162,6 +164,8 @@ public class EditRule extends Activity {
 	private View.OnClickListener mOnSaveClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			
+			String rnumber = String.valueOf((int)(Math.random() * 10));
+			
 			switch (type) {
 				case Constants.TYPE_BLOCKED_NUMBER:
 					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
@@ -187,6 +191,14 @@ public class EditRule extends Activity {
 					break;
 			}
 			
+			try {
+				Pattern.matches(rule, rnumber);
+			} catch (RuntimeException e) {
+				Toast toast = Toast.makeText(EditRule.this, getString(R.string.syntax_error), Toast.LENGTH_SHORT);
+				toast.show();
+				return;
+				}
+			
 			if (rule.length() > 0) {
 				if (!editMode) {
 					enabled = "true";
@@ -201,9 +213,9 @@ public class EditRule extends Activity {
 				rDatabaseAdapter.close();
 				setResult(RESULT_OK);
 				finish();
-			} else {
-				Toast toast = Toast.makeText(EditRule.this, getString(R.string.invaild_value), Toast.LENGTH_SHORT);
-				toast.show();
+				} else {
+					Toast toast = Toast.makeText(EditRule.this, getString(R.string.invaild_value), Toast.LENGTH_SHORT);
+					toast.show();
 			}
 		}
 	};

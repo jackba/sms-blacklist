@@ -28,6 +28,7 @@
 	<string name="type_only_trusted_number">（通配符）过滤所有与该号码不匹配的信息</string>
 	<string name="type_blocked_number_regexp">（正则式）过滤匹配该号码的信息</string>
 	<string name="type_blocked_keyword_regexp">（正则式）过滤内容中匹配该字段的信息</string>
+	<string name="syntax_error">语法错误，规则不能被保存</string>
 	<string name="invaild_value">所输入的值无效，规则不能被保存</string>
 	<string name="delete_rule_confirm">确定要删除这条规则？</string>
 	<string name="delete_message_confirm">确定要删除这条信息？</string>
