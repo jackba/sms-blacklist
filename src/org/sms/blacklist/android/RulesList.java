@@ -50,8 +50,6 @@ public class RulesList extends ListActivity {
 		rListView = (ListView) findViewById(android.R.id.list);
 		rInflater = getLayoutInflater();
 
-		refreshCursor();
-		
 	  //Listview clicked
 		rListView.setOnItemClickListener(
 			new OnItemClickListener() {
@@ -78,9 +76,9 @@ public class RulesList extends ListActivity {
 	}
 	
 	@Override
-	public void onResume() {
+	public void onStart() {
 		refreshCursor();
-		super.onResume();
+		super.onStart();
 	}
 	
 	@Override
@@ -215,12 +213,10 @@ public class RulesList extends ListActivity {
 				
 				if(ruleEnabled.equals("true")) {
 					rRule.setTypeface(null, Typeface.BOLD);
+					rRule.setTextColor(Color.WHITE);
 				} else if (ruleEnabled.equals("false")){
 					rRule.setTypeface(null, Typeface.NORMAL);
 					rRule.setTextColor(Color.GRAY);
-					} else {
-						rRule.setTypeface(null, Typeface.BOLD);
-						rRule.setTextColor(Color.RED);
 					}
 				rRule.setText(ruleName);
 			}

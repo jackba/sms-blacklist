@@ -1,7 +1,6 @@
 package org.sms.blacklist.android;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -29,10 +28,6 @@ public class SMSReceiver extends BroadcastReceiver {
 	private MessagesDatabaseAdapter mDatabaseAdapter;
 	private RulesDatabaseAdapter rDatabaseAdapter;
 	
-	private static final String PATTERN_LINE_START = "^" ;
-	private static final String PATTERN_LINE_END = "$" ;
-	private static final char[] META_CHARACTERS = { '$', '^', '[', ']', '(', ')', '{', '}', '|', '+', '.', '\\' };
-
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
@@ -48,29 +43,45 @@ public class SMSReceiver extends BroadcastReceiver {
 			body = smsMessage[n].getMessageBody();
 
 			for (String trustedNumber : trustedNumbers) {
-				if (wildcardMatch(trustedNumber, number)){
-					// nothing to do here
-					return;
-				} 
+				try {
+					if (wildcardMatch(trustedNumber, number)){
+						// nothing to do here
+						return;
+					} 
+				} catch (RuntimeException e) {
+					deleteIncorrectedRule(trustedNumber, Constants.TYPE_TRUSTED_NUMBER, context);
+					}
 			}
 			for (String onlyTrustedNumber : onlyTrustedNumbers){
-				if (!wildcardMatch(onlyTrustedNumber, number)){
-					blockMessage(context);
-					return;
-				} 
+				try {
+					if (!wildcardMatch(onlyTrustedNumber, number)){
+						blockMessage(context);
+						return;
+					} 
+				} catch (RuntimeException e) {
+					deleteIncorrectedRule(onlyTrustedNumber, Constants.TYPE_ONLY_TRUSTED_NUMBER, context);
+					}
 			}
 			for (String blockedNumber : blockedNumbers){
-				if (wildcardMatch(blockedNumber, number)){
-					blockMessage(context);
-					return;
-				}
+				try {
+					if (wildcardMatch(blockedNumber, number)){
+						blockMessage(context);
+						return;
+					}
+				} catch (RuntimeException e) {
+					deleteIncorrectedRule(blockedNumber, Constants.TYPE_BLOCKED_NUMBER, context);
+					}
 			}
 			for (String blockedKeyword : blockedKeywords) {
-				if (wildcardMatch(blockedKeyword, body)){
-					blockMessage(context);
-					return;
+				try {
+					if (wildcardMatch(blockedKeyword, body)){
+						blockMessage(context);
+						return;
+					}
+				} catch (RuntimeException e) {
+					deleteIncorrectedRule(blockedKeyword, Constants.TYPE_BLOCKED_KEYWORD, context);
+					}
 				}
-			}
 			for (String blockedNumberRegexp : blockedNumbersRegexp) {
 				try {
 					if (Pattern.matches(blockedNumberRegexp, number)){
@@ -78,7 +89,7 @@ public class SMSReceiver extends BroadcastReceiver {
 						return;
 					}
 				} catch (RuntimeException e) {
-					disableIncorrectedRule(blockedNumberRegexp, Constants.TYPE_BLOCKED_NUMBER_REGEXP, context);
+					deleteIncorrectedRule(blockedNumberRegexp, Constants.TYPE_BLOCKED_NUMBER_REGEXP, context);
 					}
 				}
 			for (String blockedKeywordRegexp : blockedKeywordsRegexp) {
@@ -88,11 +99,11 @@ public class SMSReceiver extends BroadcastReceiver {
 						return;
 					}
 				} catch (RuntimeException e) {
-					disableIncorrectedRule(blockedKeywordRegexp, Constants.TYPE_BLOCKED_KEYWORD_REGEXP, context);
+					deleteIncorrectedRule(blockedKeywordRegexp, Constants.TYPE_BLOCKED_KEYWORD_REGEXP, context);
 					}
 				}
+			}
 		}
-	}
 	
 	private void blockMessage(Context context){
 		this.abortBroadcast();
@@ -176,46 +187,23 @@ public class SMSReceiver extends BroadcastReceiver {
 		 rDatabaseAdapter.close();
 	}
 
-	public void disableIncorrectedRule(String rule, int type, Context context){
+	public void deleteIncorrectedRule(String rule, int type, Context context){
 		rDatabaseAdapter = new RulesDatabaseAdapter(context);
 		rDatabaseAdapter.open();
-		Cursor cursor = rDatabaseAdapter.getAllRules("rule='"+rule+"' and enabled='true'");
+		Cursor cursor = rDatabaseAdapter.getAllRules("rule='"+rule+"' AND enabled='true'"+" AND type='"+String.valueOf(type)+"'");
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			int ruleId = cursor.getInt(0);
-			rDatabaseAdapter.updateRule(ruleId, rule, type, "error");
+			rDatabaseAdapter.deleteRule(ruleId);
 			cursor.moveToNext(); 
 		  }
 		  cursor.close();
 		rDatabaseAdapter.close();
-		Log.e(Constants.LOGTAG, "Rule '"+rule+"' have SYNTAX ERROR! It will be DISABLED until corrected !");
+		Log.e(Constants.LOGTAG, "Rule '"+rule+"' have SYNTAX ERROR! It has been DELETED!");
 	}
 	
-    public static boolean wildcardMatch(String pattern, String str) {
-        pattern = convertToRegexPattern(pattern);
-        return Pattern.matches(pattern, str);
-    }
-
-    private static String convertToRegexPattern(String wildcardString) {
-        String result = PATTERN_LINE_START ;
-        char[] chars = wildcardString.toCharArray() ;
-        for (char ch : chars) {
-            if (Arrays.binarySearch(META_CHARACTERS, ch)>=0) {
-                result += "\\" + ch ;
-                continue ;
-            }
-            switch (ch) {
-                case '*':
-                    result += ".*";
-                    break;
-                case '?':
-                    result += ".{0,1}";
-                    break;
-                default:
-                    result += ch;
-            }
-        }
-        result += PATTERN_LINE_END ;
-        return result;
+	public boolean wildcardMatch(String wildcard, String string) {
+        String regexp = wildcard.replaceAll("\\?", ".").replaceAll("\\*", ".*");
+        return Pattern.matches(regexp, string);
     }
 }
