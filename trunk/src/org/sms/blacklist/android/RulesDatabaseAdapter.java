@@ -1,7 +1,5 @@
 package org.sms.blacklist.android;
 
-import java.util.regex.Pattern;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -89,13 +87,13 @@ public class RulesDatabaseAdapter {
 	
 	/* retrieves all the rules */
 	public Cursor getAllRules(String selection) {
-		return db.query(Constants.DATABASES_TABLE_RULES, new String[] {KEY_RULEID, KEY_RULE, KEY_TYPE, KEY_ENABLED}, selection, null, null, null, null);
+		return db.query(Constants.DATABASES_TABLE_RULES, new String[] {KEY_RULEID, KEY_RULE, KEY_TYPE, KEY_ENABLED}, selection, null, null, null, "_id DESC");
 	}
 
 	/* retrieves a rule */
 	public Cursor getRule(int ruleId) throws SQLException {
 		Cursor mCursor =
-				db.query(true, Constants.DATABASES_TABLE_RULES, new String[] {KEY_RULE, KEY_TYPE, KEY_ENABLED}, KEY_RULEID + "=" + ruleId, null, null, null, 	null, null);
+				db.query(true, Constants.DATABASES_TABLE_RULES, new String[] {KEY_RULE, KEY_TYPE, KEY_ENABLED}, KEY_RULEID + "=" + ruleId, null, null, null, null, null);
 		if (mCursor != null) {
 			mCursor.moveToFirst();
 		}
@@ -107,18 +105,6 @@ public class RulesDatabaseAdapter {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "true");
 		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "=" + ruleId, null);
-		Cursor cursor = getRule(ruleId);
-		String rule = cursor.getString(0);
-		int type = cursor.getInt(1);
-		if (type == Constants.TYPE_BLOCKED_NUMBER_REGEXP||type == Constants.TYPE_BLOCKED_KEYWORD_REGEXP) {
-			String rnumber = String.valueOf((int)(Math.random() * 10));
-			try {
-				Pattern.matches(rule, rnumber);
-			} catch (RuntimeException e) {
-				updateRule(ruleId, rule, type, "error");
-			}
-		}
-		cursor.close();
 	}
 	
 	/* disable a rule */
@@ -133,21 +119,6 @@ public class RulesDatabaseAdapter {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "true");
 		db.update(Constants.DATABASES_TABLE_RULES, args, null, null);
-		Cursor cursor = getAllRules(KEY_TYPE + "= '" + String.valueOf(Constants.TYPE_BLOCKED_NUMBER_REGEXP) + "' OR "+ KEY_TYPE +"= '" + String.valueOf(Constants.TYPE_BLOCKED_KEYWORD_REGEXP) +"'");
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			int ruleId = cursor.getInt(0);
-			String rule = cursor.getString(1);
-			int type = cursor.getInt(2);
-			String rnumber = String.valueOf((int)(Math.random() * 10));
-			try {
-				Pattern.matches(rule, rnumber);
-			} catch (RuntimeException e) {
-				updateRule(ruleId, rule, type, "error");
-			}
-			cursor.moveToNext(); 
-		  }
-		  cursor.close();
 	}
 	
 	/* disable all rules */

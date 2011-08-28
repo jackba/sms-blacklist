@@ -115,7 +115,7 @@ public class EditRule extends Activity {
 					        return InputType.TYPE_CLASS_NUMBER;
 					        }
 					        protected char[] getAcceptedChars() {
-					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*', '+', '-'};
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*'};
 					        }
 					    });
 					break;
@@ -126,7 +126,7 @@ public class EditRule extends Activity {
 					        return InputType.TYPE_CLASS_NUMBER;
 					        }
 					        protected char[] getAcceptedChars() {
-					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*', '+', '-'};
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*'};
 					        }
 					    });
 					break;
@@ -141,7 +141,7 @@ public class EditRule extends Activity {
 					        return InputType.TYPE_CLASS_NUMBER;
 					        }
 					        protected char[] getAcceptedChars() {
-					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*', '+', '-'};
+					        return new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?', '*'};
 					        }
 					    });
 					break;
@@ -164,22 +164,20 @@ public class EditRule extends Activity {
 	private View.OnClickListener mOnSaveClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			
-			String rnumber = String.valueOf((int)(Math.random() * 10));
-			
 			switch (type) {
 				case Constants.TYPE_BLOCKED_NUMBER:
-					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
+					rule = rEditRule.getText().toString().replaceAll("[^0-9?*]", "");
 					rEditRule.setText(rule);
 					break;
 				case Constants.TYPE_TRUSTED_NUMBER:
-					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
+					rule = rEditRule.getText().toString().replaceAll("[^0-9?*]", "");
 					rEditRule.setText(rule);
 					break;
 				case Constants.TYPE_BLOCKED_KEYWORD:
 					rule = rEditRule.getText().toString();
 					break;
 				case Constants.TYPE_ONLY_TRUSTED_NUMBER:
-					rule = rEditRule.getText().toString().replaceAll("[^0-9+-?*]", "");
+					rule = rEditRule.getText().toString().replaceAll("[^0-9?*]", "");
 					rEditRule.setText(rule);
 					break;
 				case Constants.TYPE_BLOCKED_NUMBER_REGEXP:
@@ -190,14 +188,24 @@ public class EditRule extends Activity {
 					rule = rEditRule.getText().toString();
 					break;
 			}
-			
-			try {
-				Pattern.matches(rule, rnumber);
-			} catch (RuntimeException e) {
-				Toast toast = Toast.makeText(EditRule.this, getString(R.string.syntax_error), Toast.LENGTH_SHORT);
-				toast.show();
-				return;
-				}
+			if (type ==Constants.TYPE_BLOCKED_NUMBER_REGEXP|| type ==Constants.TYPE_BLOCKED_KEYWORD_REGEXP) {
+				try {
+					Pattern.compile(rule);
+				} catch (RuntimeException e) {
+					Toast toast = Toast.makeText(EditRule.this, getString(R.string.syntax_error), Toast.LENGTH_SHORT);
+					toast.show();
+					return;
+					}
+			} else {
+				String regexp = rule.replaceAll("\\?", ".").replaceAll("\\*", ".*");
+				try {
+					Pattern.compile(regexp);
+				} catch (RuntimeException e) {
+					Toast toast = Toast.makeText(EditRule.this, getString(R.string.syntax_error), Toast.LENGTH_SHORT);
+					toast.show();
+					return;
+					}
+			}
 			
 			if (rule.length() > 0) {
 				if (!editMode) {

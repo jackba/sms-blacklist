@@ -52,8 +52,6 @@ public class MessagesList extends ListActivity {
 		mListView = (ListView) findViewById(android.R.id.list);
 		mInflater = getLayoutInflater();
 		
-		refreshCursor();
-		
 	  //Listview clicked
 		mListView.setOnItemClickListener(
 			new OnItemClickListener() {
@@ -79,9 +77,9 @@ public class MessagesList extends ListActivity {
 	}
 	
 	@Override
-	public void onResume() {
+	public void onStart() {
 		refreshCursor();
-		super.onResume();
+		super.onStart();
 	}
 	
 	@Override
