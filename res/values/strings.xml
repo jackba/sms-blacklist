@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="country_code">1</string>
 	<string name="sms_blacklist">SMS Blacklist</string>
 	<string name="blocked_messages">Blocked messages</string>
 	<string name="rules_list">Rules list</string>

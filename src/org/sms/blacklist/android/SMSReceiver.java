@@ -23,7 +23,7 @@ public class SMSReceiver extends BroadcastReceiver {
 	
 	private long timestamp;
 	private String number;
-	private String body;
+	private String body = "";
 	
 	private MessagesDatabaseAdapter mDatabaseAdapter;
 	private RulesDatabaseAdapter rDatabaseAdapter;
@@ -31,86 +31,89 @@ public class SMSReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
+		String country_code = context.getString(R.string.country_code);
+		
 		readRules(context);
 		
 		Bundle bundle = intent.getExtras();
 		Object messages[] = (Object[]) bundle.get("pdus");
 		SmsMessage smsMessage[] = new SmsMessage[messages.length];
+		
 		for (int n = 0; n < messages.length; n++) {
 			smsMessage[n] = SmsMessage.createFromPdu((byte[]) messages[n]);
 			timestamp = smsMessage[n].getTimestampMillis();
 			number = smsMessage[n].getOriginatingAddress();
-			body = smsMessage[n].getMessageBody();
-
-			for (String trustedNumber : trustedNumbers) {
-				try {
-					if (wildcardMatch(trustedNumber, number)){
-						// nothing to do here
-						return;
-					} 
-				} catch (RuntimeException e) {
-					deleteIncorrectedRule(trustedNumber, Constants.TYPE_TRUSTED_NUMBER, context);
-					}
+			body += smsMessage[n].getDisplayMessageBody();
 			}
-			for (String onlyTrustedNumber : onlyTrustedNumbers){
-				try {
-					if (!wildcardMatch(onlyTrustedNumber, number)){
-						blockMessage(context);
-						return;
-					} 
-				} catch (RuntimeException e) {
-					deleteIncorrectedRule(onlyTrustedNumber, Constants.TYPE_ONLY_TRUSTED_NUMBER, context);
-					}
-			}
-			for (String blockedNumber : blockedNumbers){
-				try {
-					if (wildcardMatch(blockedNumber, number)){
-						blockMessage(context);
-						return;
-					}
-				} catch (RuntimeException e) {
-					deleteIncorrectedRule(blockedNumber, Constants.TYPE_BLOCKED_NUMBER, context);
-					}
-			}
-			for (String blockedKeyword : blockedKeywords) {
-				try {
-					if (wildcardMatch(blockedKeyword, body)){
-						blockMessage(context);
-						return;
-					}
-				} catch (RuntimeException e) {
-					deleteIncorrectedRule(blockedKeyword, Constants.TYPE_BLOCKED_KEYWORD, context);
-					}
+		
+		for (String trustedNumber : trustedNumbers) {
+			try {
+				if (wildcardMatch(trustedNumber, number.replaceFirst("\\+"+country_code, ""))){
+					// nothing to do here
+					return;
+				} 
+			} catch (RuntimeException e) {
+				deleteIncorrectedRule(trustedNumber, Constants.TYPE_TRUSTED_NUMBER, context);
 				}
-			for (String blockedNumberRegexp : blockedNumbersRegexp) {
-				try {
-					if (Pattern.matches(blockedNumberRegexp, number)){
-						blockMessage(context);
-						return;
-					}
-				} catch (RuntimeException e) {
-					deleteIncorrectedRule(blockedNumberRegexp, Constants.TYPE_BLOCKED_NUMBER_REGEXP, context);
-					}
+		}
+		for (String onlyTrustedNumber : onlyTrustedNumbers){
+			try {
+				if (!wildcardMatch(onlyTrustedNumber, number.replaceFirst("\\+"+country_code, ""))){
+					blockMessage(context);
+					return;
+				} 
+			} catch (RuntimeException e) {
+				deleteIncorrectedRule(onlyTrustedNumber, Constants.TYPE_ONLY_TRUSTED_NUMBER, context);
 				}
-			for (String blockedKeywordRegexp : blockedKeywordsRegexp) {
-				try {
-					if (Pattern.matches(blockedKeywordRegexp, number)){
-						blockMessage(context);
-						return;
-					}
-				} catch (RuntimeException e) {
-					deleteIncorrectedRule(blockedKeywordRegexp, Constants.TYPE_BLOCKED_KEYWORD_REGEXP, context);
-					}
+		}
+		for (String blockedNumber : blockedNumbers){
+			try {
+				if (wildcardMatch(blockedNumber, number.replaceFirst("\\+"+country_code, ""))){
+					blockMessage(context);
+					return;
+				}
+			} catch (RuntimeException e) {
+				deleteIncorrectedRule(blockedNumber, Constants.TYPE_BLOCKED_NUMBER, context);
+				}
+		}
+		for (String blockedKeyword : blockedKeywords) {
+			try {
+				if (wildcardMatch(blockedKeyword, body)){
+					blockMessage(context);
+					return;
+				}
+			} catch (RuntimeException e) {
+				deleteIncorrectedRule(blockedKeyword, Constants.TYPE_BLOCKED_KEYWORD, context);
+				}
+			}
+		for (String blockedNumberRegexp : blockedNumbersRegexp) {
+			try {
+				if (Pattern.matches(blockedNumberRegexp, number.replaceFirst("\\+"+country_code, ""))){
+					blockMessage(context);
+					return;
+				}
+			} catch (RuntimeException e) {
+				deleteIncorrectedRule(blockedNumberRegexp, Constants.TYPE_BLOCKED_NUMBER_REGEXP, context);
+				}
+			}
+		for (String blockedKeywordRegexp : blockedKeywordsRegexp) {
+			try {
+				if (Pattern.matches(blockedKeywordRegexp, number)){
+					blockMessage(context);
+					return;
+				}
+			} catch (RuntimeException e) {
+				deleteIncorrectedRule(blockedKeywordRegexp, Constants.TYPE_BLOCKED_KEYWORD_REGEXP, context);
 				}
 			}
 		}
 	
 	private void blockMessage(Context context){
-		this.abortBroadcast();
-			mDatabaseAdapter = new MessagesDatabaseAdapter(context);
-			mDatabaseAdapter.open();
-			mDatabaseAdapter.insertMessage(timestamp, number, body);
-			mDatabaseAdapter.close();
+		abortBroadcast();
+		mDatabaseAdapter = new MessagesDatabaseAdapter(context);
+		mDatabaseAdapter.open();
+		mDatabaseAdapter.insertMessage(timestamp, number, body);
+		mDatabaseAdapter.close();
 	}
 	
 	private void readRules(Context context){	
