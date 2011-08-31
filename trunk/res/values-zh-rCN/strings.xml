@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="country_code">86</string>
 	<string name="sms_blacklist">信息黑名单</string>
 	<string name="blocked_messages">已过滤的信息</string>
 	<string name="rules_list">规则列表</string>
