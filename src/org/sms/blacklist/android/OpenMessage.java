@@ -72,14 +72,6 @@ public class OpenMessage extends Activity {
 		});
 	}
 	
-	public void onStop(){
-		mDatabaseAdapter = new MessagesDatabaseAdapter(OpenMessage.this);
-		mDatabaseAdapter.open();
-		mDatabaseAdapter.markRead(messageId);
-		mDatabaseAdapter.close();
-		super.onStop();
-	}
-	
 	private View.OnClickListener mOnDeleteClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			new AlertDialog.Builder(OpenMessage.this)
