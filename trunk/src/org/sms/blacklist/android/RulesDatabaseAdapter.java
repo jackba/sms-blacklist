@@ -13,9 +13,9 @@ public class RulesDatabaseAdapter {
 	public static final String KEY_RULE = "rule";
 	public static final String KEY_TYPE = "type";
 	public static final String KEY_ENABLED = "enabled";
-	
-	private final Context context; 
-	
+
+	private final Context context;
+
 	private DatabaseHelper DBHelper;
 	private SQLiteDatabase db;
 
@@ -23,10 +23,11 @@ public class RulesDatabaseAdapter {
 		this.context = ctx;
 		DBHelper = new DatabaseHelper(context);
 	}
-		
+
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
-			super(context, Constants.DATABASES_NAME, null, Constants.DATABASE_VERSION);
+			super(context, Constants.DATABASES_NAME, null,
+					Constants.DATABASE_VERSION);
 		}
 
 		@Override
@@ -37,15 +38,15 @@ public class RulesDatabaseAdapter {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w(Constants.LOGTAG, "Upgrading database from version " + oldVersion 
-					+ " to "
-					+ newVersion + ", which will destroy all old data");
+			Log.w(Constants.LOGTAG, "Upgrading database from version "
+					+ oldVersion + " to " + newVersion
+					+ ", which will destroy all old data");
 			db.execSQL(Constants.DATABASES_UPGRADE_RULES);
 			db.execSQL(Constants.DATABASES_UPGRADE_MESSAGES);
 			onCreate(db);
 		}
-	}	
-	
+	}
+
 	/* opens the database */
 	public RulesDatabaseAdapter open() throws SQLException {
 		db = DBHelper.getWritableDatabase();
@@ -56,7 +57,7 @@ public class RulesDatabaseAdapter {
 	public void close() {
 		DBHelper.close();
 	}
-	
+
 	/* insert a rule into the database */
 	public void insertRule(String rule, int type, String enabled) {
 		ContentValues initialValues = new ContentValues();
@@ -72,28 +73,33 @@ public class RulesDatabaseAdapter {
 		args.put(KEY_RULE, rule);
 		args.put(KEY_TYPE, type);
 		args.put(KEY_ENABLED, enabled);
-		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "=" + ruleId, null);
+		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "="
+				+ ruleId, null);
 	}
-	
+
 	/* deletes a rule */
 	public void deleteRule(int ruleId) {
-		db.delete(Constants.DATABASES_TABLE_RULES, KEY_RULEID + "=" + ruleId, null);
+		db.delete(Constants.DATABASES_TABLE_RULES, KEY_RULEID + "=" + ruleId,
+				null);
 	}
 
 	/* deletes all rules */
 	public void deleteAllRules() {
 		db.delete(Constants.DATABASES_TABLE_RULES, null, null);
 	}
-	
+
 	/* retrieves all the rules */
 	public Cursor getAllRules(String selection) {
-		return db.query(Constants.DATABASES_TABLE_RULES, new String[] {KEY_RULEID, KEY_RULE, KEY_TYPE, KEY_ENABLED}, selection, null, null, null, "_id DESC");
+		return db.query(Constants.DATABASES_TABLE_RULES, new String[] {
+				KEY_RULEID, KEY_RULE, KEY_TYPE, KEY_ENABLED }, selection, null,
+				null, null, "_id DESC");
 	}
 
 	/* retrieves a rule */
 	public Cursor getRule(int ruleId) throws SQLException {
-		Cursor mCursor =
-				db.query(true, Constants.DATABASES_TABLE_RULES, new String[] {KEY_RULE, KEY_TYPE, KEY_ENABLED}, KEY_RULEID + "=" + ruleId, null, null, null, null, null);
+		Cursor mCursor = db.query(true, Constants.DATABASES_TABLE_RULES,
+				new String[] { KEY_RULE, KEY_TYPE, KEY_ENABLED }, KEY_RULEID
+						+ "=" + ruleId, null, null, null, null, null);
 		if (mCursor != null) {
 			mCursor.moveToFirst();
 		}
@@ -104,23 +110,25 @@ public class RulesDatabaseAdapter {
 	public void enableRule(int ruleId) {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "true");
-		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "=" + ruleId, null);
+		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "="
+				+ ruleId, null);
 	}
-	
+
 	/* disable a rule */
 	public void disableRule(int ruleId) {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "false");
-		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "=" + ruleId, null);
+		db.update(Constants.DATABASES_TABLE_RULES, args, KEY_RULEID + "="
+				+ ruleId, null);
 	}
-	
+
 	/* enable all rules */
 	public void enableAllRules() {
 		ContentValues args = new ContentValues();
 		args.put(KEY_ENABLED, "true");
 		db.update(Constants.DATABASES_TABLE_RULES, args, null, null);
 	}
-	
+
 	/* disable all rules */
 	public void disableAllRules() {
 		ContentValues args = new ContentValues();
