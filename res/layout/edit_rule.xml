@@ -16,8 +16,8 @@
 			android:layout_height="fill_parent"
 			android:gravity="center_vertical"
 			android:text="@string/edit_rule"
-			android:textSize="22sp"
-			android:layout_weight="1"
+			android:singleLine="true"
+			android:textAppearance="?android:attr/textAppearanceLarge"
 			android:layout_margin="8dip"
 			android:drawableLeft="@drawable/ic_dialog_edit"
 			android:drawablePadding="8dip"/>
@@ -60,7 +60,6 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:paddingTop="4dip"
-		android:paddingBottom="4dip"
 		android:paddingLeft="8dip"
 		android:paddingRight="8dip"
 		android:background="#d0d0d0d0" >
